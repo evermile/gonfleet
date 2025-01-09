@@ -98,14 +98,14 @@ func Call(
 	b := backoff.WithContext(exponentialBackOff, ctx)
 	return backoff.Retry(func() error {
 		err := callInternal(ctx, apiKey, rlHttpClient, method, baseUrl, pathSegments, queryParams, body, v, additionalHeaders)
+		if err == nil {
+			return nil
+		}
 		// Double-checking different error types to avoid errors.Is issues
 		if errors.Is(err, &onfleet.TooManyRequestsError{}) || err.Error() == onfleet.TooManyRequestsStr {
 			return err
 		}
-		if err != nil {
-			return backoff.Permanent(err)
-		}
-		return nil
+		return backoff.Permanent(err)
 	}, b)
 }
 
