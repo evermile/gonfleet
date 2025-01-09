@@ -2,6 +2,7 @@ package onfleet
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 )
@@ -43,6 +44,14 @@ func ParseError(r io.Reader) error {
 type TooManyRequestsError struct {
 }
 
+const TooManyRequestsStr = "too many requests"
+
 func (err TooManyRequestsError) Error() string {
-	return "too many requests"
+	return TooManyRequestsStr
+}
+
+func (err TooManyRequestsError) Is(target error) bool {
+	var tooManyRequestsError TooManyRequestsError
+	ok := errors.As(target, &tooManyRequestsError)
+	return ok
 }
